@@ -4,23 +4,29 @@ const App = () => {
   const [persons, setPersons] = useState([{ name: "Arto Hellas" }]);
   const [newName, setNewName] = useState("");
 
-  const addNewName = (event) => {
+  const Person = ({ name }) => {
+    return <p>{name}</p>;
+  };
+  const handleSubmit = (event) => {
     event.preventDefault();
-    console.log(event.target.value);
     let previousName = [...persons];
-    previousName.push({ name: newName });
-    setPersons(previousName);
-    setNewName("");
+    if (previousName.map((person) => person.name).includes(newName)) {
+      alert(`${newName} is already added to phonebook`);
+      setNewName("");
+    } else {
+      previousName.push({ name: newName });
+      setPersons(previousName);
+      setNewName("");
+    }
   };
 
   const handleAddName = (event) => {
-    console.log(event.target.value);
     setNewName(event.target.value);
   };
   return (
     <div>
       <h2>Phonebook</h2>
-      <form onSubmit={addNewName}>
+      <form onSubmit={handleSubmit}>
         <div>
           name: <input value={newName} onChange={handleAddName} />
         </div>
@@ -29,9 +35,9 @@ const App = () => {
         </div>
       </form>
       <h2>Numbers</h2>
-      {persons.map((person) => (
-        <div> {person.name}</div>
-      ))}
+      {persons.map((person) => {
+        return <Person key={person.name} name={person.name} />;
+      })}
     </div>
   );
 };
