@@ -33,40 +33,78 @@ const SingleCountry = ({ country }) => {
   );
 };
 
-const Countries = ({ showCountries }) => {
+const Countries = ({ showCountries, handleClick }) => {
   const content =
     showCountries.length >= 10 ? (
       "Too Many Matches, specify another filter"
     ) : showCountries.length > 1 ? (
       showCountries.map((country) => {
-        return <p key={country.name}> {country.name} </p>;
+        return (
+          <div>
+            <p key={country.name}>
+              {country.name}
+              {/* {country.showFullData ? (
+                <SingleCountry country={country} />
+              ) : (
+                <button onClick={handleClick}>show</button>
+              )} */}
+              <button id={country.name} onClick={handleClick}>
+                show
+              </button>
+            </p>
+          </div>
+        );
       })
-    ) : showCountries.length > 0 ? (
+    ) : showCountries.length === 1 ? (
       <SingleCountry country={showCountries[0]} />
     ) : (
       "Enter a country name"
     );
   return <div> {content}</div>;
 };
+
 const App = () => {
   const [countries, setCountries] = useState([]);
   const [searchCountry, setSearchCountry] = useState("");
   const [showCountries, setShowCountries] = useState("");
 
+  const handleSearchCountry = (event) => {
+    setSearchCountry(event.target.value);
+    setShowCountries(
+      countries.filter((country) =>
+        country.name.toLowerCase().includes(event.target.value.toLowerCase())
+      )
+    );
+  };
+
   useEffect(() => {
     axios.get("https://restcountries.eu/rest/v2/all").then((res) => {
+      // const countries = res.data.map((item) => {
+      //   return {
+      //     ...item,
+      //     showData: false,
+      //   };
+      // });
+      // setCountries(countries);
       setCountries(res.data);
     });
   }, []);
 
-  const handleSearchCountry = (event) => {
-    setSearchCountry(event.target.value);
-    setShowCountries(
-      countries.filter((countries) => {
-        const regex = new RegExp(event.target.value, "gi");
-        return regex.test(countries.name);
-      })
+  const handleClick = (event) => {
+    event.preventDefault();
+    let selectedCountry = countries.filter(
+      (country) => country.name === event.target.id
     );
+    setShowCountries(
+      <SingleCountry
+        country={selectedCountry[0].name}
+        capital={selectedCountry[0].capital}
+        population={selectedCountry[0].population}
+        language={selectedCountry[0].languages}
+        flag={selectedCountry[0].flag}
+      />
+    );
+    console.log(selectedCountry);
   };
 
   return (
@@ -75,7 +113,7 @@ const App = () => {
         searchCountry={searchCountry}
         handleSearchCountry={handleSearchCountry}
       />
-      <Countries showCountries={showCountries} />
+      <Countries showCountries={showCountries} handleClick={handleClick} />
     </>
   );
 };
