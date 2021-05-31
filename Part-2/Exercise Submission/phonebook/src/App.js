@@ -66,12 +66,7 @@ const PersonForm = ({
 };
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    // { name: "Arto Hellas", number: "040-123456" },
-    // { name: "Ada Lovelace", number: "39-44-5323523" },
-    // { name: "Dan Abramov", number: "12-43-234345" },
-    // { name: "Mary Poppendieck", number: "39-23-6423122" },
-  ]);
+  const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [number, setNumber] = useState("");
   const [searchValue, setSearchValue] = useState("");
@@ -87,22 +82,41 @@ const App = () => {
     let previousStack = [...persons];
     if (!newName || !number) {
       alert("name and number cannot be empty!!");
-    }
-    if (previousStack.map((person) => person.name).includes(newName)) {
-      alert(`${newName} is already added to phonebook`);
       return;
-    } else {
-      // previousStack.push({ name: newName, number: number });
-      // setPersons(previousStack);
-      // setNewName("");
-      // setNumber("");
-      personService.create({ name: newName, number: number }).then((person) => {
-        previousStack.push(person);
-        setPersons(previousStack);
-        setNewName("");
-        setNumber("");
-      });
     }
+
+    const oldPerson = persons.findIndex((person) => person.name === newName);
+    if (oldPerson !== -1) {
+      if (
+        window.confirm(
+          `${newName} is already added to phonebook, replace the old number with a new one?`
+        )
+      ) {
+        console.log(oldPerson);
+        personService
+          .update(persons[oldPerson].id, {
+            name: newName,
+            number: number,
+          })
+          .then((person) => {
+            previousStack[oldPerson] = {
+              ...previousStack[oldPerson],
+              ...person,
+            };
+            setPersons(previousStack);
+            setNewName("");
+            setNumber("");
+          });
+      }
+      return;
+    }
+
+    personService.create({ name: newName, number: number }).then((person) => {
+      previousStack.push(person);
+      setPersons(previousStack);
+      setNewName("");
+      setNumber("");
+    });
   };
 
   const handleDelete = ({ id, name }) => {
