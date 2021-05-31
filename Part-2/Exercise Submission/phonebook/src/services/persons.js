@@ -17,13 +17,14 @@ const update = (id, newobj) => {
 };
 
 const removePerson = (id, newobj) => {
-  const request = axios.delete(`${baseUrl}/${id}`);
+  const request = axios.delete(`${baseUrl}/${id}`, newobj);
   return request.then((response) => response.data);
 };
-
-export default {
+const services = {
   getAll: getAll,
   create: create,
   update: update,
   delete: removePerson,
 };
+
+export default services;

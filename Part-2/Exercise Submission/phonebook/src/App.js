@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import personService from "./services/persons";
+import "./index.css";
 
 const Button = ({ text, handleClick }) => {
   return <button onClick={handleClick}> {text}</button>;
@@ -12,6 +12,32 @@ const Person = ({ person, handleDelete }) => {
       {name} {number}
       <Button text="delete" handleClick={() => handleDelete(person)} />
     </p>
+  );
+};
+
+const SuccessMessage = ({ message }) => {
+  if (!message) {
+    return null;
+  }
+
+  return (
+    <div className="success">
+      <div>Success:</div>
+      {message}
+    </div>
+  );
+};
+
+const ErrorMessage = ({ message }) => {
+  if (!message) {
+    return null;
+  }
+
+  return (
+    <div className="error">
+      <div>Error:</div>
+      {message}
+    </div>
   );
 };
 
@@ -70,6 +96,8 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [number, setNumber] = useState("");
   const [searchValue, setSearchValue] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   useEffect(() => {
     personService.getAll().then((persons) => {
@@ -106,6 +134,10 @@ const App = () => {
             setPersons(previousStack);
             setNewName("");
             setNumber("");
+            setSuccess(`updated ${newName} number`);
+            setTimeout(() => {
+              setSuccess("");
+            }, 3000);
           });
       }
       return;
@@ -116,15 +148,27 @@ const App = () => {
       setPersons(previousStack);
       setNewName("");
       setNumber("");
+      setSuccess(`${newName} Added Successfully`);
+      setTimeout(() => {
+        setSuccess("");
+      }, 3000);
     });
   };
 
   const handleDelete = ({ id, name }) => {
     if (window.confirm(`Are you sure, you want to delete ${name}?`)) {
-      personService.delete(id).then(() => {
-        const updatedPerson = persons.filter((person) => person.id !== id);
-        setPersons(updatedPerson);
-      });
+      personService
+        .delete(id)
+        .then(() => {
+          const updatedPerson = persons.filter((person) => person.id !== id);
+          setPersons(updatedPerson);
+        })
+        .catch((error) => {
+          setError(`something went wrong`);
+          setTimeout(() => {
+            setError("");
+          }, 3000);
+        });
     }
   };
 
@@ -148,6 +192,8 @@ const App = () => {
   };
   return (
     <>
+      <SuccessMessage message={success} />
+      <ErrorMessage message={error} />
       <Filter searchValue={searchValue} handleSearchValue={handleSearchValue} />
 
       <PersonForm
