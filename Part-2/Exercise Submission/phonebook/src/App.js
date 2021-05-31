@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import personService from "./services/persons";
 
 const Person = ({ person }) => {
   const { name, number } = person;
@@ -71,15 +72,11 @@ const App = () => {
   const [number, setNumber] = useState("");
   const [searchValue, setSearchValue] = useState("");
 
-  const hook = () => {
-    console.log("effect");
-    axios.get("http://localhost:3001/persons").then((response) => {
-      console.log("promise fulfilled");
-      setPersons(response.data);
+  useEffect(() => {
+    personService.getAll().then((persons) => {
+      setPersons(persons);
     });
-  };
-
-  useEffect(hook, []);
+  }, []);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -91,10 +88,16 @@ const App = () => {
       alert(`${newName} is already added to phonebook`);
       return;
     } else {
-      previousStack.push({ name: newName, number: number });
-      setPersons(previousStack);
-      setNewName("");
-      setNumber("");
+      // previousStack.push({ name: newName, number: number });
+      // setPersons(previousStack);
+      // setNewName("");
+      // setNumber("");
+      personService.create({ name: newName, number: number }).then((person) => {
+        previousStack.push(person);
+        setPersons(previousStack);
+        setNewName("");
+        setNumber("");
+      });
     }
   };
 
