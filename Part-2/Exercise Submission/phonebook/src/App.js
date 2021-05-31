@@ -2,21 +2,25 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import personService from "./services/persons";
 
-const Person = ({ person }) => {
+const Button = ({ text, handleClick }) => {
+  return <button onClick={handleClick}> {text}</button>;
+};
+const Person = ({ person, handleDelete }) => {
   const { name, number } = person;
   return (
     <p>
       {name} {number}
+      <Button text="delete" handleClick={() => handleDelete(person)} />
     </p>
   );
 };
 
-const Persons = ({ persons }) => {
+const Persons = ({ persons, handleDelete }) => {
   return (
     <div>
       <h2>Numbers</h2>
       {persons.map((person) => (
-        <Person key={person.name} person={person} />
+        <Person key={person.name} person={person} handleDelete={handleDelete} />
       ))}
     </div>
   );
@@ -101,6 +105,15 @@ const App = () => {
     }
   };
 
+  const handleDelete = ({ id, name }) => {
+    if (window.confirm(`Are you sure, you want to delete ${name}?`)) {
+      personService.delete(id).then(() => {
+        const updatedPerson = persons.filter((person) => person.id !== id);
+        setPersons(updatedPerson);
+      });
+    }
+  };
+
   const handleAddName = (event) => {
     setNewName(event.target.value);
   };
@@ -131,7 +144,7 @@ const App = () => {
         handleSubmit={handleSubmit}
       />
 
-      <Persons persons={filteredValue()} />
+      <Persons persons={filteredValue()} handleDelete={handleDelete} />
     </>
   );
 };
