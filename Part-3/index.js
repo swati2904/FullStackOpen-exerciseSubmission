@@ -1,5 +1,5 @@
 const express = require("express");
-// const { request, response } = require("express");
+const { request, response } = require("express");
 const app = express();
 app.use(express.json());
 
@@ -31,7 +31,7 @@ app.get("/", (request, response) => {
 });
 
 app.get("/api/persons", (request, response) => {
-  response.json(persons);
+  response.send(persons);
 });
 
 app.get("/info", (request, response) => {
@@ -39,6 +39,18 @@ app.get("/info", (request, response) => {
     <p>Phonebook has info for ${persons.length} people </p>
     <p> ${new Date()} </p>
     `);
+});
+
+app.get("/api/persons/:id", (request, response) => {
+  const id = Number(request.params.id);
+  const person = persons.find((person) => {
+    return person.id === id;
+  });
+  if (person) {
+    response.send(person);
+  } else {
+    response.send(400).end();
+  }
 });
 
 const PORT = 3001;
