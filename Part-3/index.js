@@ -1,7 +1,15 @@
 const express = require("express");
 const { request, response } = require("express");
 const app = express();
+const morgan = require("morgan");
 app.use(express.json());
+
+app.use(morgan("tiny"));
+
+// const reqLogger = (request, response, next) => {
+//   console.log("tiny configuration");
+//   next();
+// };
 
 let persons = [
   {
